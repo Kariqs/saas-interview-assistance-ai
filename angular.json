@@ -5,14 +5,15 @@
   "projects": {
     "saas-interview-assistant-tool": {
       "projectType": "application",
-      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
+      "schematics": {},
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "outputPath": "dist/saas-interview-assistant-tool",
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"
@@ -25,11 +26,14 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+               "node_modules/ngx-toastr/toastr.css"
             ]
           },
           "configurations": {
             "production": {
+              "outputHashing": "all",
+              "baseHref": "./",
               "budgets": [
                 {
                   "type": "initial",
@@ -41,13 +45,13 @@
                   "maximumWarning": "4kB",
                   "maximumError": "8kB"
                 }
-              ],
-              "outputHashing": "all"
+              ]
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "baseHref": "/"
             }
           },
           "defaultConfiguration": "production"
@@ -88,5 +92,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

@@ -1,0 +1,36 @@
+@keyframes swing {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(15deg);
+  }
+  75% {
+    transform: rotate(-15deg);
+  }
+}
+
+@keyframes swingVertical {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-swing {
+  animation: swing 2s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.animate-swing-vertical {
+  animation: swingVertical 2s ease-in-out infinite;
+}
+
+input[type='checkbox']:checked {
+  background-color: rgb(34 211 238);
+  border-color: rgb(34 211 238);
+}

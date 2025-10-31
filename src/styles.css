@@ -1,1 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'tailwindcss';
+
+html,
+body {
+  color: #e5e7eb; /* same as text-gray-200 */
+  background-color: #000;
+  background-image: linear-gradient(0deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -1,0 +1,50 @@
+<div class="min-h-screen flex flex-col items-center justify-center px-4">
+    <!-- Emojis Container -->
+    <div class="flex gap-4 sm:gap-8 mb-8 sm:mb-12">
+        <!-- Shush Emoji -->
+        <div class="text-6xl sm:text-7xl md:text-8xl animate-swing" style="animation-delay: 0s;">
+            🤫
+        </div>
+        <!-- Ear Emoji -->
+        <div class="text-6xl sm:text-7xl md:text-8xl animate-swing-vertical" style="animation-delay: 0.3s;">
+            👂
+        </div>
+    </div>
+
+    <!-- Main Title -->
+    <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-cyan-400 mb-6 sm:mb-8 text-center tracking-wider px-4"
+        style="text-shadow: 0 0 30px rgba(34, 211, 238, 0.6);">
+        I GOTCH YOU
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-gray-300 text-base sm:text-lg md:text-xl text-center max-w-2xl mb-8 sm:mb-12 leading-relaxed px-4">
+        Shhhh!!! I'm Listening - AI-Powered Interview Assistance<br class="hidden sm:block">
+        <span class="sm:hidden"> </span>That's Got Your Back
+    </p>
+
+    <!-- Access Button -->
+    <button (click)="accessSystem()" class="group relative px-8 sm:px-12 py-4 sm:py-5 bg-cyan-400 text-black font-bold text-base sm:text-lg 
+                     uppercase tracking-wider overflow-hidden transition-all duration-300
+                     hover:bg-cyan-300 hover:scale-105 active:scale-95">
+        <span class="relative z-10 flex items-center gap-2 sm:gap-3">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+            </svg>
+            ACCESS SYSTEM
+        </span>
+        <div class="absolute inset-0 bg-gradient-to-r from-cyan-300 to-cyan-500 opacity-0 
+                    group-hover:opacity-100 transition-opacity duration-300"></div>
+    </button>
+
+    <!-- Mouse Icon -->
+    <div class="mt-12 sm:mt-16 animate-bounce">
+        <svg class="w-6 h-10 sm:w-8 sm:h-12 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 3C9.5 3 7.5 5 7.5 7.5v9c0 2.5 2 4.5 4.5 4.5s4.5-2 4.5-4.5v-9C16.5 5 14.5 3 12 3z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v3" class="animate-pulse" />
+        </svg>
+    </div>
+</div>
