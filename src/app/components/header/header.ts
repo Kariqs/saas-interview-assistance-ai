@@ -2,14 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-declare global {
-  interface Window {
-    electronAPI?: {
-      toggleProtection: (enable: boolean) => Promise<boolean>;
-    };
-  }
-}
-
 @Component({
   selector: 'app-header',
   templateUrl: './header.html',
