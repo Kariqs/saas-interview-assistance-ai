@@ -2,26 +2,23 @@
     <!-- Header -->
     <header class="border-b border-gray-800 px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex items-center justify-between">
-            <!-- Back Button & Status -->
             <div class="flex items-center gap-4">
                 <button (click)="backToDashboard()"
-                    class="flex items-center gap-2 text-gray-300 cursor-pointer hover:text-white transition-colors">
+                    class="flex items-center gap-2 text-gray-300 hover:text-white transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     <span class="font-medium">Back to Dashboard</span>
                 </button>
-                <!-- Status Badge -->
                 <div
                     [class]="isListening ? 'flex items-center gap-2 px-4 py-2 bg-cyan-400 text-black rounded-lg font-bold text-sm' : 'flex items-center gap-2 px-4 py-2 bg-gray-800 border border-gray-700 text-gray-400 rounded-lg font-medium text-sm'">
                     <div
                         [class]="isListening ? 'w-2 h-2 bg-red-500 rounded-full animate-pulse' : 'w-2 h-2 bg-yellow-500 rounded-full'">
                     </div>
-                    {{ isListening ? 'LISTENING' : 'READY' }}
+                    {{ isListening ? 'LISTENING LIVE' : 'READY' }}
                 </div>
             </div>
-            <!-- Timer -->
             <div class="flex items-center gap-2 px-4 py-2 border border-cyan-400/30 rounded-lg">
                 <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -31,11 +28,12 @@
             </div>
         </div>
     </header>
+
     <!-- Main Content -->
     <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 sm:p-6 lg:p-8">
-        <!-- Left Panel - Controls & Notes -->
+        <!-- Left Panel -->
         <div class="space-y-6">
-            <!-- Resume Upload Card -->
+            <!-- Resume Upload -->
             <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
                 <div class="flex items-center gap-2 mb-4">
                     <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,203 +49,127 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                         </svg>
-                        <span class="text-sm text-gray-400">
-                            {{ isProcessing ? 'Uploading...' : 'Click to upload resume' }}
-                        </span>
+                        <span class="text-sm text-gray-400">{{ isProcessing ? 'Uploading...' : 'Click to upload resume'
+                            }}</span>
                         <span class="text-xs text-gray-500 mt-1">PDF, DOCX, or TXT</span>
                         <input type="file" class="hidden" accept=".pdf,.docx,.txt" (change)="onResumeSelected($event)"
-                            [disabled]="isProcessing || isListening">
+                            [disabled]="isProcessing">
                     </label>
-                    <p class="text-xs text-gray-500">
-                        📄 Upload your resume to get personalized answers
-                    </p>
                 </div>
                 <div *ngIf="resumeUploaded" class="space-y-3">
                     <div class="flex items-center gap-3 p-4 bg-cyan-400/10 border border-cyan-400/30 rounded-xl">
-                        <svg class="w-6 h-6 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <div class="flex-1 min-w-0">
+                        <div>
                             <p class="text-sm font-medium text-cyan-400">Resume Uploaded</p>
                             <p class="text-xs text-gray-400 truncate">{{ resumeFile?.name }}</p>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-500">
-                        ✅ Your answers will be personalized
-                    </p>
                 </div>
             </div>
-            <!-- Control Card -->
-            <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
-                <button *ngIf="!isInterviewActive" (click)="startInterview()" [disabled]="!resumeUploaded"
-                    class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded-xl transition-all hover:scale-105 active:scale-95 mb-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    START INTERVIEW
-                </button>
-                <button *ngIf="isInterviewActive && !isListening" (click)="startListening()"
-                    class="w-full flex items-center justify-center gap-3 px-6 py-4 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded-xl transition-all hover:scale-105 active:scale-95 mb-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    RESUME LISTENING
-                </button>
-                <button *ngIf="isListening" (click)="pauseAndTranscribe()"
-                    class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all mb-6">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    PAUSE & TRANSCRIBE
-                </button>
-                <button *ngIf="isInterviewActive" (click)="endInterview()"
-                    class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-xl transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    END INTERVIEW
-                </button>
-                <!-- Audio Status -->
-                <div class="border-t border-gray-700/50 pt-4 mt-6">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-gray-400 text-sm font-medium">AUDIO STATUS</h3>
-                        <span
-                            [class]="isListening ? 'px-2 py-1 bg-cyan-400/20 border border-cyan-400/50 text-cyan-400 text-xs font-bold rounded' : 'px-2 py-1 bg-gray-700 text-gray-400 text-xs font-medium rounded'">
-                            {{ isListening ? 'Recording' : isInterviewActive ? 'Paused' : 'Inactive' }}
-                        </span>
-                    </div>
-                    <p class="text-gray-500 text-sm">
-                        {{ isListening
-                        ? 'Audio is being continuously recorded'
-                        : isInterviewActive ? 'Paused - resume to continue recording' : 'Start the interview to begin'
-                        }}
-                    </p>
+
+            <!-- Controls + Live Transcription -->
+            <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30 space-y-6">
+                <div class="space-y-4">
+                    <button *ngIf="!isInterviewActive" (click)="startInterview()" [disabled]="!resumeUploaded"
+                        class="w-full py-4 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded-xl transition-all disabled:opacity-50">
+                        START INTERVIEW
+                    </button>
+
+                    <button *ngIf="isInterviewActive && !isListening" (click)="startListening()"
+                        class="w-full py-4 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded-xl transition-all">
+                        START LISTENING (Speaker Audio)
+                    </button>
+
+                    <button *ngIf="isListening" (click)="stopListening()"
+                        class="w-full py-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all">
+                        STOP LISTENING
+                    </button>
+
+                    <button *ngIf="isInterviewActive" (click)="endInterview()"
+                        class="w-full py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-xl transition-all">
+                        END INTERVIEW
+                    </button>
                 </div>
-                <!-- Current Transcription Display -->
-                <div *ngIf="currentTranscription" class="border-t border-gray-700/50 pt-4 mt-4">
-                    <h3 class="text-gray-400 text-sm font-medium mb-3 flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                <!-- Live Transcription -->
+                <div class="space-y-3">
+                    <h3 class="text-gray-300 font-semibold flex items-center gap-2">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                         </svg>
-                        TRANSCRIPTION
+                        Live Transcription (from Speakers)
                     </h3>
-                    <div class="bg-gray-700/30 border border-gray-600/50 rounded-lg p-3 mb-3">
-                        <p class="text-gray-300 text-sm leading-relaxed">{{ currentTranscription }}</p>
+                    <div
+                        class="bg-gray-700/40 border border-gray-600/50 rounded-xl p-5 min-h-64 max-h-96 overflow-y-auto text-base leading-relaxed">
+                        <p *ngIf="!currentTranscription && isListening" class="text-gray-500 italic text-center py-12">
+                            Listening to speaker audio... waiting for interviewer question
+                        </p>
+                        <p *ngIf="!currentTranscription && !isListening && isInterviewActive"
+                            class="text-gray-500 italic text-center py-12">
+                            Click "Start Listening" to capture audio from speakers
+                        </p>
+                        <div *ngIf="currentTranscription" class="text-gray-200 whitespace-pre-wrap">
+                            {{ currentTranscription }}
+                            <span class="inline-block w-1 h-5 bg-cyan-400 ml-1 animate-pulse"
+                                *ngIf="isListening"></span>
+                        </div>
                     </div>
-                    <!-- Answer with AI Button -->
+
                     <button (click)="answerWithAI()" [disabled]="isGeneratingAnswer || !currentTranscription.trim()"
-                        class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-semibold rounded-xl transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
+                        class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-xl transition-all disabled:opacity-50">
                         {{ isGeneratingAnswer ? 'Generating Answer...' : 'Answer with AI' }}
                     </button>
                 </div>
             </div>
-            <!-- Notes Card -->
-            <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30 hidden lg:block">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-gray-300 font-semibold">Quick Notes</h3>
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                </div>
-                <textarea [(ngModel)]="notes" placeholder="Take notes during your interview..."
-                    class="w-full h-48 bg-gray-700/30 text-gray-300 placeholder-gray-500 border-2 border-gray-600/50 rounded-xl p-4 focus:outline-none focus:border-cyan-400 focus:bg-gray-700/50 transition-all resize-none text-sm"></textarea>
-            </div>
         </div>
-        <!-- Right Panel - AI Assistance -->
+
+        <!-- Right Panel - History -->
         <div class="lg:col-span-2">
             <div
-                class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-gray-700/30 min-h-[600px] flex flex-col">
-                <!-- Header -->
+                class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-gray-700/30 h-full flex flex-col">
                 <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-700/30">
                     <div class="text-3xl">🤖</div>
                     <div>
-                        <h2 class="text-white font-semibold text-lg">KrackAI - Real-time Interview Assistant</h2>
-                        <p class="text-gray-400 text-sm">Powered by Gemini 2.5 Flash</p>
+                        <h2 class="text-white font-semibold text-lg">KrackAI - Live Interview Coach</h2>
+                        <p class="text-gray-400 text-sm">Real-time transcription • On-demand answers</p>
                     </div>
                 </div>
-                <!-- Waiting State -->
-                <div class="flex-1 flex flex-col items-center justify-center"
-                    *ngIf="!isInterviewActive && questions.length === 0">
-                    <div class="text-center">
+
+                <div class="flex-1 flex items-center justify-center" *ngIf="questions.length === 0">
+                    <div class="text-center max-w-lg">
                         <div
-                            class="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-700/30 flex items-center justify-center">
-                            <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="w-32 h-32 mx-auto mb-8 rounded-full bg-gray-700/20 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-300 mb-2">Ready to Assist</h3>
-                        <p class="text-gray-500 max-w-md">Click "Start Interview" to begin. Audio will be recorded when
-                            listening.</p>
+                        <h3 class="text-2xl font-semibold text-gray-300 mb-4">Ready to Practice</h3>
+                        <p class="text-gray-500">Play an interview question through your speakers → see live
+                            transcription → click "Answer with AI"</p>
                     </div>
                 </div>
-                <!-- Paused State -->
-                <div class="flex-1 flex flex-col items-center justify-center"
-                    *ngIf="isInterviewActive && !isListening && questions.length === 0">
-                    <div class="text-center">
-                        <div
-                            class="w-24 h-24 mx-auto mb-6 rounded-full bg-yellow-400/10 flex items-center justify-center">
-                            <svg class="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold text-yellow-400 mb-2">Paused</h3>
-                        <p class="text-gray-400">Click "Resume Listening" to continue recording audio.</p>
-                    </div>
-                </div>
-                <!-- Listening State (No Questions Yet) -->
-                <div class="flex-1 flex flex-col items-center justify-center"
-                    *ngIf="isListening && questions.length === 0">
-                    <div class="text-center">
-                        <div
-                            class="w-24 h-24 mx-auto mb-6 rounded-full bg-cyan-400/10 flex items-center justify-center animate-pulse">
-                            <svg class="w-12 h-12 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <h3 class="text-xl font-semibold text-cyan-400 mb-2">Listening...</h3>
-                        <p class="text-gray-400">Recording audio - pause to transcribe</p>
-                    </div>
-                </div>
-                <!-- Questions & Answers -->
-                <div class="flex-1 overflow-y-auto space-y-4 pr-2" *ngIf="questions.length > 0">
-                    <div *ngFor="let q of questions; let i = index" class="space-y-3 animate-fade-in"
-                        [style.animation-delay]="i * 0.1 + 's'">
-                        <!-- Question -->
-                        <div class="bg-gray-700/40 rounded-xl p-4 border border-gray-600/30">
-                            <div class="flex items-start justify-between mb-2">
-                                <h3 class="text-cyan-400 font-semibold flex items-center gap-2">
-                                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    {{ q.question }}
-                                </h3>
-                                <span
-                                    class="px-2 py-1 bg-cyan-400/20 border border-cyan-400/30 text-cyan-400 text-xs font-bold rounded flex-shrink-0 ml-2">
-                                    Q{{ q.id }}
-                                </span>
+
+                <div class="flex-1 overflow-y-auto space-y-8" *ngIf="questions.length > 0">
+                    <div *ngFor="let q of questions; let i = index" class="animate-fade-in">
+                        <div class="bg-gray-700/50 rounded-2xl p-6 border border-gray-600/40">
+                            <div class="flex items-start gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-full bg-cyan-400/20 flex items-center justify-center flex-shrink-0">
+                                    <span class="text-cyan-400 font-bold text-xl">Q{{ q.id }}</span>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-gray-300 font-medium mb-4 leading-relaxed">{{ q.question }}</p>
+                                    <div class="pl-4 border-l-4 border-cyan-400/50">
+                                        <p class="text-gray-200 text-base leading-relaxed whitespace-pre-line">{{
+                                            q.answer }}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <p class="text-gray-300 text-sm leading-relaxed whitespace-pre-line">{{ q.answer }}</p>
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,6 @@ export class Interview implements OnDestroy {
   isInterviewActive = false;
   isListening = false;
   elapsedTime = 0;
-  notes = '';
   questions: Question[] = [];
   currentTranscription = '';
   isProcessing = false;
@@ -28,23 +27,20 @@ export class Interview implements OnDestroy {
   resumeUploaded = false;
   resumeText = '';
   private ws: WebSocket | null = null;
-  private mediaRecorder: MediaRecorder | null = null;
-  private intervalId: any;
-  private audioChunks: Blob[] = [];
-  private currentMimeType = 'audio/webm;codecs=opus'; // Default fallback
 
-  // State machine to prevent race conditions
-  private transcriptionState:
-    | 'idle'
-    | 'paused-for-transcribe'
-    | 'awaiting-transcription'
-    | 'awaiting-answer' = 'idle';
+  private audioContext: AudioContext | null = null;
+  private sourceNode: MediaStreamAudioSourceNode | null = null;
+  private processorNode: ScriptProcessorNode | null = null;
+  private stream: MediaStream | null = null;
+
+  private intervalId: any;
 
   constructor(private router: Router) {}
 
   async onResumeSelected(event: any) {
     const file = event.target.files[0];
     if (!file) return;
+
     const allowedTypes = [
       'application/pdf',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -54,12 +50,13 @@ export class Interview implements OnDestroy {
       alert('Please upload a PDF, DOCX, or TXT file');
       return;
     }
+
     this.resumeFile = file;
     this.isProcessing = true;
     try {
       const formData = new FormData();
       formData.append('resume', file);
-      const response = await fetch('http://localhost:3000/api/upload-resume', {
+      const response = await fetch('http://localhost:3000/upload-resume', {
         method: 'POST',
         body: formData,
       });
@@ -67,9 +64,7 @@ export class Interview implements OnDestroy {
       const data = await response.json();
       this.resumeText = data.text;
       this.resumeUploaded = true;
-      console.log('Resume uploaded successfully');
     } catch (error: any) {
-      console.error('Resume upload failed:', error);
       alert(`Failed to upload resume: ${error.message}`);
       this.resumeFile = null;
     } finally {
@@ -82,98 +77,95 @@ export class Interview implements OnDestroy {
       alert('Please upload your resume first');
       return;
     }
-    try {
-      this.isInterviewActive = true;
-      this.startTimer();
-      // Connect WebSocket
-      this.ws = new WebSocket('ws://localhost:3000');
-      this.ws.onopen = () => {
-        console.log('Connected to server');
-        this.ws?.send(JSON.stringify({ type: 'set-context', resumeText: this.resumeText }));
-      };
-      this.ws.onmessage = (e) => this.handleServerMessage(JSON.parse(e.data));
-      this.ws.onerror = () => alert('Server connection failed. Is backend running?');
-      this.ws.onclose = () => console.log('Disconnected from server');
-      this.startListening();
-    } catch (error) {
-      console.error('Failed to start interview:', error);
-      alert('Audio permission denied or capture failed.');
-      this.isInterviewActive = false;
-    }
+
+    this.isInterviewActive = true;
+    this.startTimer();
+
+    this.ws = new WebSocket('ws://localhost:3000');
+
+    this.ws.onopen = () => {
+      console.log('WebSocket connected for transcription');
+    };
+
+    this.ws.onmessage = (e) => this.handleServerMessage(JSON.parse(e.data));
+
+    this.ws.onerror = () => alert('WebSocket connection failed');
+
+    this.ws.onclose = () => console.log('WebSocket closed');
+
+    this.startListening();
   }
 
   startListening() {
-    if (this.transcriptionState !== 'idle') {
-      this.transcriptionState = 'idle';
-      this.currentTranscription = '';
-    }
+    if (this.isListening) return;
     this.isListening = true;
-    this.audioChunks = [];
-    this.startSystemAudioRecording();
+    this.startRealtimeAudioCapture();
   }
 
-  pauseAndTranscribe() {
+  stopListening() {
     this.isListening = false;
-    this.stopRecorder();
-    console.log('Recorder stopped for pause');
-    this.transcribeCurrentAudio();
-  }
-
-  async transcribeCurrentAudio() {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
-    if (this.transcriptionState !== 'idle') return;
-    if (this.audioChunks.length < 1) {
-      console.log('Not enough audio, skipping...');
-      return;
-    }
-    this.transcriptionState = 'paused-for-transcribe';
-    this.isProcessing = true;
-    console.log(
-      `Requesting transcription (${this.audioChunks.length} chunks, ${this.currentMimeType})...`
-    );
-    this.ws.send(JSON.stringify({ type: 'transcribe-only' }));
+    this.stopRealtimeAudioCapture();
   }
 
   async answerWithAI() {
-    if (!this.currentTranscription.trim()) {
-      alert('No transcription to answer');
+    const transcription = this.currentTranscription.trim();
+    if (!transcription) {
+      alert('No question transcribed yet');
       return;
     }
-    if (this.transcriptionState !== 'awaiting-transcription') {
-      console.log('Transcription not ready for AI');
-      return;
-    }
-    this.transcriptionState = 'awaiting-answer';
+    if (this.isGeneratingAnswer) return;
+
+    console.log('Sending question to backend:', transcription);
+
     this.isGeneratingAnswer = true;
-    this.ws?.send(
-      JSON.stringify({
-        type: 'generate-answer',
-        transcription: this.currentTranscription,
-      })
-    );
+    this.stopListening();
+
+    try {
+      const response = await fetch('http://localhost:3000/generate-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: transcription,
+          resumeText: this.resumeText,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to generate answer');
+      }
+
+      const data = await response.json();
+      this.addQuestion(data.question, data.answer);
+      this.currentTranscription = '';
+    } catch (error: any) {
+      alert('Error generating answer: ' + error.message);
+    } finally {
+      this.isGeneratingAnswer = false;
+      this.startListening();
+    }
   }
 
-  async startSystemAudioRecording() {
+  async startRealtimeAudioCapture() {
     try {
       let stream: MediaStream;
-      if (window.electronAPI?.getAudioSources) {
-        console.log('Running in Electron - capturing system audio');
-        if (window.electronAPI.requestAudioPermission) {
-          const granted = await window.electronAPI.requestAudioPermission();
+
+      if ((window as any).electronAPI?.getAudioSources) {
+        if ((window as any).electronAPI.requestAudioPermission) {
+          const granted = await (window as any).electronAPI.requestAudioPermission();
           if (!granted) throw new Error('Audio permission denied');
         }
-        const sources = await window.electronAPI.getAudioSources();
-        if (sources.length === 0) throw new Error('No audio sources');
+
+        const sources = await (window as any).electronAPI.getAudioSources();
+        if (sources.length === 0) throw new Error('No audio sources available');
+
         const audioSource = sources[0];
-        console.log('Selected audio source:', audioSource.name);
-        stream = await (navigator.mediaDevices as any).getUserMedia({
+
+        const desktopStream = await (navigator.mediaDevices as any).getUserMedia({
           audio: {
             mandatory: {
               chromeMediaSource: 'desktop',
               chromeMediaSourceId: audioSource.id,
-              echoCancellation: false,
-              noiseSuppression: false,
-              autoGainControl: false,
             },
           },
           video: {
@@ -185,154 +177,106 @@ export class Interview implements OnDestroy {
             },
           },
         });
-        const audioTracks = stream.getAudioTracks();
-        if (audioTracks.length === 0) {
-          const loopback = await (navigator.mediaDevices as any).getUserMedia({
-            audio: {
-              mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId: audioSource.id },
-            },
-          });
-          const tracks = loopback.getAudioTracks();
-          stream = tracks.length > 0 ? new MediaStream(tracks) : stream;
-        } else {
-          stream = new MediaStream(audioTracks);
-        }
-        stream.getVideoTracks().forEach((t) => t.stop());
+
+        const audioTracks = desktopStream.getAudioTracks();
+        if (audioTracks.length === 0) throw new Error('No audio track captured');
+
+        stream = new MediaStream(audioTracks);
+        desktopStream.getVideoTracks().forEach((t: MediaStreamTrack) => t.stop());
       } else {
-        console.warn('Using microphone (non-Electron)');
-        stream = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 },
-        });
-      }
-      if (stream.getAudioTracks().length === 0) throw new Error('No audio track');
-
-      // === MIME TYPE SELECTION (CRITICAL FIX) ===
-      let mimeType = 'audio/webm;codecs=opus'; // fallback
-
-      if (MediaRecorder.isTypeSupported('audio/mp3')) {
-        mimeType = 'audio/mp3';
-      } else if (MediaRecorder.isTypeSupported('audio/mpeg')) {
-        mimeType = 'audio/mpeg';
-      } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-        mimeType = 'audio/webm;codecs=opus';
-      } else if (MediaRecorder.isTypeSupported('audio/wav')) {
-        mimeType = 'audio/wav';
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       }
 
-      this.currentMimeType = mimeType;
-      console.log('Selected recording format:', mimeType);
+      this.stream = stream;
 
-      this.mediaRecorder = new MediaRecorder(stream, { mimeType });
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
+        sampleRate: 24000,
+      });
 
-      this.mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          this.audioChunks.push(e.data);
-          this.sendAudioChunk(e.data);
+      this.sourceNode = this.audioContext.createMediaStreamSource(this.stream);
+      this.processorNode = this.audioContext.createScriptProcessor(4096, 1, 1);
+
+      this.processorNode.onaudioprocess = (e) => {
+        const inputData = e.inputBuffer.getChannelData(0);
+        const pcm16 = new Int16Array(inputData.length);
+        for (let i = 0; i < inputData.length; i++) {
+          const s = Math.max(-1, Math.min(1, inputData[i]));
+          pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+        }
+
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(pcm16.buffer)));
+
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.ws.send(
+            JSON.stringify({
+              type: 'audio-chunk',
+              audio: base64,
+            })
+          );
         }
       };
-      this.mediaRecorder.start(1000); // 1-second chunks
-      console.log('Recording started');
+
+      this.sourceNode.connect(this.processorNode);
+      this.processorNode.connect(this.audioContext.destination);
     } catch (error: any) {
-      console.error('Audio capture error:', error);
-      alert(`Audio failed: ${error.message}`);
-      throw error;
+      alert(`Audio error: ${error.message}`);
+      this.isListening = false;
     }
   }
 
-  sendAudioChunk(chunk: Blob) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = (reader.result as string).split(',')[1];
-      this.ws?.send(
-        JSON.stringify({
-          type: 'audio-chunk',
-          audio: base64,
-          mimeType: this.currentMimeType, // ← NEW: Send mime type
-        })
-      );
-    };
-    reader.readAsDataURL(chunk);
+  private stopRealtimeAudioCapture() {
+    if (this.processorNode) {
+      this.processorNode.disconnect();
+      this.processorNode = null;
+    }
+    if (this.sourceNode) {
+      this.sourceNode.disconnect();
+      this.sourceNode = null;
+    }
+    if (this.audioContext) {
+      this.audioContext.close();
+      this.audioContext = null;
+    }
+    if (this.stream) {
+      this.stream.getTracks().forEach((t) => t.stop());
+      this.stream = null;
+    }
   }
 
   handleServerMessage(data: any) {
-    console.log('Server message:', data);
     switch (data.type) {
-      case 'chunk-received':
-        // Optional: add visual feedback if desired
+      case 'transcription-delta':
+        this.currentTranscription += data.text;
         break;
-      case 'info':
-        console.log('Info:', data.message);
-        break;
+
       case 'transcription':
-        console.log('Transcription:', data.text);
         this.currentTranscription = data.text;
-        this.audioChunks = [];
-        this.isProcessing = false;
-        if (this.transcriptionState === 'paused-for-transcribe') {
-          this.transcriptionState = 'awaiting-transcription';
-        }
         break;
-      case 'qa-response':
-        console.log('AI answer received');
-        this.addQuestion(data.question, data.answer);
-        this.currentTranscription = '';
-        this.audioChunks = [];
-        this.isGeneratingAnswer = false;
-        this.transcriptionState = 'idle';
-        break;
-      case 'context-set':
-        console.log('Resume context set');
-        break;
+
       case 'error':
-        console.error('Server error:', data.message);
-        this.audioChunks = [];
-        this.isProcessing = false;
-        this.isGeneratingAnswer = false;
-        this.transcriptionState = 'idle';
-        const suppressed = ['Transcoding', 'Gemini', 'timeout', 'ENOTFOUND'];
-        if (!suppressed.some((e) => data.message.includes(e))) {
-          alert(`Error: ${data.message}`);
-        } else {
-          console.log('Recoverable error, continuing...');
-        }
+        alert(`Transcription error: ${data.message}`);
         break;
     }
   }
 
-  private stopRecorder() {
-    if (!this.mediaRecorder) return;
-    if (this.mediaRecorder.state !== 'inactive') {
-      this.mediaRecorder.stop();
-    }
-    this.mediaRecorder.ondataavailable = null;
-    this.mediaRecorder.stream.getTracks().forEach((t) => t.stop());
-    this.mediaRecorder = null;
-    console.log('Recorder stopped');
+  addQuestion(question: string, answer: string) {
+    this.questions.push({
+      id: this.questions.length + 1,
+      question: question.trim(),
+      answer: answer.trim(),
+    });
   }
 
   endInterview() {
     this.isListening = false;
     this.isInterviewActive = false;
     this.stopTimer();
-    this.stopRecorder();
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-    }
+    this.stopRealtimeAudioCapture();
+    this.ws?.close();
+    this.ws = null;
     this.questions = [];
-    this.elapsedTime = 0;
-    this.audioChunks = [];
     this.currentTranscription = '';
-    this.isProcessing = false;
-    this.isGeneratingAnswer = false;
-    this.transcriptionState = 'idle';
-    console.log('Interview ended');
-  }
-
-  addQuestion(question: string, answer: string) {
-    this.questions.push({ id: this.questions.length + 1, question, answer });
+    this.elapsedTime = 0;
   }
 
   startTimer() {
