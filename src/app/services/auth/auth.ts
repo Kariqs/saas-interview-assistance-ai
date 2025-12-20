@@ -31,7 +31,7 @@ export interface IJwtPayload {
 export class Auth {
   constructor(private http: HttpClient, private router: Router) {}
 
-  apiUrl = 'http://localhost:3000';
+  apiUrl = 'http://69.169.111.89:5000';
 
   signup(signupInfo: ISignup): Observable<{
     message: string;
