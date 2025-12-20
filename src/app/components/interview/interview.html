@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-gray-950 flex flex-col">
-    <!-- Header -->
+    <!-- Header (unchanged) -->
     <header class="border-b border-gray-800 px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -29,10 +29,10 @@
         </div>
     </header>
 
-    <!-- Main Content -->
-    <div class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 sm:p-6 lg:p-8">
-        <!-- Left Panel -->
-        <div class="space-y-6">
+    <!-- Main Content - New 3-Column Layout -->
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 sm:p-6 lg:p-8">
+        <!-- Left Column: Resume + Controls & Transcription (lg:col-span-4) -->
+        <div class="lg:col-span-4 space-y-6">
             <!-- Resume Upload -->
             <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
                 <div class="flex items-center gap-2 mb-4">
@@ -42,7 +42,9 @@
                     </svg>
                     <h3 class="text-gray-300 font-semibold">Upload Resume</h3>
                 </div>
-                <div *ngIf="!resumeUploaded" class="space-y-3">
+
+                @if (!resumeUploaded) {
+                <div class="space-y-3">
                     <label
                         class="w-full flex flex-col items-center px-4 py-6 bg-gray-700/30 border-2 border-gray-600/50 border-dashed rounded-xl cursor-pointer hover:bg-gray-700/50 transition-all">
                         <svg class="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +58,10 @@
                             [disabled]="isProcessing">
                     </label>
                 </div>
-                <div *ngIf="resumeUploaded" class="space-y-3">
+                }
+
+                @if (resumeUploaded) {
+                <div class="space-y-3">
                     <div class="flex items-center gap-3 p-4 bg-cyan-400/10 border border-cyan-400/30 rounded-xl">
                         <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -68,30 +73,39 @@
                         </div>
                     </div>
                 </div>
+                }
             </div>
 
             <!-- Controls + Live Transcription -->
             <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30 space-y-6">
                 <div class="space-y-4">
-                    <button *ngIf="!isInterviewActive" (click)="startInterview()" [disabled]="!resumeUploaded"
+                    @if (!isInterviewActive) {
+                    <button (click)="startInterview()" [disabled]="!resumeUploaded"
                         class="w-full py-4 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded-xl transition-all disabled:opacity-50">
                         START INTERVIEW
                     </button>
+                    }
 
-                    <button *ngIf="isInterviewActive && !isListening" (click)="startListening()"
+                    @if (isInterviewActive && !isListening) {
+                    <button (click)="startListening()"
                         class="w-full py-4 bg-cyan-400 hover:bg-cyan-300 text-black font-bold rounded-xl transition-all">
                         START LISTENING (Speaker Audio)
                     </button>
+                    }
 
-                    <button *ngIf="isListening" (click)="stopListening()"
+                    @if (isListening) {
+                    <button (click)="stopListening()"
                         class="w-full py-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all">
                         STOP LISTENING
                     </button>
+                    }
 
-                    <button *ngIf="isInterviewActive" (click)="endInterview()"
+                    @if (isInterviewActive) {
+                    <button (click)="endInterview()"
                         class="w-full py-3 bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-xl transition-all">
                         END INTERVIEW
                     </button>
+                    }
                 </div>
 
                 <!-- Live Transcription -->
@@ -105,18 +119,27 @@
                     </h3>
                     <div
                         class="bg-gray-700/40 border border-gray-600/50 rounded-xl p-5 min-h-64 max-h-96 overflow-y-auto text-base leading-relaxed">
-                        <p *ngIf="!currentTranscription && isListening" class="text-gray-500 italic text-center py-12">
+
+                        @if (!currentTranscription && isListening) {
+                        <p class="text-gray-500 italic text-center py-12">
                             Listening to speaker audio... waiting for interviewer question
                         </p>
-                        <p *ngIf="!currentTranscription && !isListening && isInterviewActive"
-                            class="text-gray-500 italic text-center py-12">
+                        }
+
+                        @if (!currentTranscription && !isListening && isInterviewActive) {
+                        <p class="text-gray-500 italic text-center py-12">
                             Click "Start Listening" to capture audio from speakers
                         </p>
-                        <div *ngIf="currentTranscription" class="text-gray-200 whitespace-pre-wrap">
+                        }
+
+                        @if (currentTranscription) {
+                        <div class="text-gray-200 whitespace-pre-wrap">
                             {{ currentTranscription }}
-                            <span class="inline-block w-1 h-5 bg-cyan-400 ml-1 animate-pulse"
-                                *ngIf="isListening"></span>
+                            @if (isListening) {
+                            <span class="inline-block w-1 h-5 bg-cyan-400 ml-1 animate-pulse"></span>
+                            }
                         </div>
+                        }
                     </div>
 
                     <button (click)="answerWithAI()" [disabled]="isGeneratingAnswer || !currentTranscription.trim()"
@@ -127,8 +150,8 @@
             </div>
         </div>
 
-        <!-- Right Panel - History -->
-        <div class="lg:col-span-2">
+        <!-- Middle Column: History / Answers (lg:col-span-5) -->
+        <div class="lg:col-span-5">
             <div
                 class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-gray-700/30 h-full flex flex-col">
                 <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-700/30">
@@ -139,7 +162,8 @@
                     </div>
                 </div>
 
-                <div class="flex-1 flex items-center justify-center" *ngIf="questions.length === 0">
+                @if (questions.length === 0) {
+                <div class="flex-1 flex items-center justify-center">
                     <div class="text-center max-w-lg">
                         <div
                             class="w-32 h-32 mx-auto mb-8 rounded-full bg-gray-700/20 flex items-center justify-center">
@@ -153,9 +177,12 @@
                             transcription → click "Answer with AI"</p>
                     </div>
                 </div>
+                }
 
-                <div class="flex-1 overflow-y-auto space-y-8" *ngIf="questions.length > 0">
-                    <div *ngFor="let q of questions; let i = index" class="animate-fade-in">
+                @if (questions.length > 0) {
+                <div class="flex-1 overflow-y-auto space-y-8">
+                    @for (q of questions; track q.id; let i = $index) {
+                    <div class="animate-fade-in">
                         <div class="bg-gray-700/50 rounded-2xl p-6 border border-gray-600/40">
                             <div class="flex items-start gap-4">
                                 <div
@@ -165,12 +192,38 @@
                                 <div class="flex-1">
                                     <p class="text-gray-300 font-medium mb-4 leading-relaxed">{{ q.question }}</p>
                                     <div class="pl-4 border-l-4 border-cyan-400/50">
-                                        <p class="text-gray-200 text-base leading-relaxed whitespace-pre-line">{{
-                                            q.answer }}</p>
+                                        <p class="text-gray-200 text-base leading-relaxed whitespace-pre-line">
+                                            {{ q.answer }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Right Column: Job Description (lg:col-span-3) -->
+        <div class="lg:col-span-3">
+            <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30 h-full flex flex-col">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 13.5v6a1.5 1.5 0 01-1.5 1.5h-15A1.5 1.5 0 013 19.5v-15A1.5 1.5 0 014.5 3h9.75m6 4.5l-6-6m6 6v4.5h-4.5v-4.5zM9 21h6m-6-6h9" />
+                    </svg>
+                    <h3 class="text-gray-300 font-semibold">Job Description</h3>
+                </div>
+                <div class="flex-1 flex flex-col">
+                    <textarea [(ngModel)]="jobDescription"
+                        placeholder="Paste the full job description here to help KrackAI tailor answers to this specific role..."
+                        class="flex-1 px-4 py-3 bg-gray-700/40 border border-gray-600/50 rounded-xl text-gray-200 placeholder-gray-500 focus:outline-none focus:border-cyan-400/70 resize-none">
+                    </textarea>
+                    <div class="mt-3 flex justify-between items-center text-xs">
+                        <span class="text-gray-500">Optional but recommended</span>
+                        <span class="text-gray-400">{{ jobDescription.length || 0 }} characters</span>
                     </div>
                 </div>
             </div>

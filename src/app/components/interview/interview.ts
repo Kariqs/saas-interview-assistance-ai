@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { IInterview, InterviewService } from '../../services/interview/interview';
+import { ToastrService } from 'ngx-toastr';
 
 interface Question {
   id: number;
@@ -26,6 +28,7 @@ export class Interview implements OnDestroy {
   resumeFile: File | null = null;
   resumeUploaded = false;
   resumeText = '';
+  jobDescription = '';
   private ws: WebSocket | null = null;
 
   private audioContext: AudioContext | null = null;
@@ -34,8 +37,13 @@ export class Interview implements OnDestroy {
   private stream: MediaStream | null = null;
 
   private intervalId: any;
+  private interviewSaved = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private interviewService: InterviewService,
+    private toaster: ToastrService
+  ) {}
 
   async onResumeSelected(event: any) {
     const file = event.target.files[0];
@@ -56,8 +64,11 @@ export class Interview implements OnDestroy {
     try {
       const formData = new FormData();
       formData.append('resume', file);
-      const response = await fetch('http://localhost:3000/upload-resume', {
+      const response = await fetch('http://69.169.111.89:5000/upload-resume', {
         method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
         body: formData,
       });
       if (!response.ok) throw new Error('Failed to upload resume');
@@ -81,7 +92,7 @@ export class Interview implements OnDestroy {
     this.isInterviewActive = true;
     this.startTimer();
 
-    this.ws = new WebSocket('ws://localhost:3000');
+    this.ws = new WebSocket('ws://69.169.111.89:5000');
 
     this.ws.onopen = () => {
       console.log('WebSocket connected for transcription');
@@ -121,12 +132,16 @@ export class Interview implements OnDestroy {
     this.stopListening();
 
     try {
-      const response = await fetch('http://localhost:3000/generate-answer', {
+      const response = await fetch('http://69.169.111.89:5000/generate-answer', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
         body: JSON.stringify({
           question: transcription,
           resumeText: this.resumeText,
+          jobDescription: this.jobDescription,
         }),
       });
 
@@ -268,14 +283,18 @@ export class Interview implements OnDestroy {
   }
 
   endInterview() {
+    if (this.interviewSaved) return;
+    this.interviewSaved = true;
     this.isListening = false;
     this.isInterviewActive = false;
     this.stopTimer();
     this.stopRealtimeAudioCapture();
+    this.createInterview();
     this.ws?.close();
     this.ws = null;
     this.questions = [];
     this.currentTranscription = '';
+    this.jobDescription = '';
     this.elapsedTime = 0;
   }
 
@@ -295,13 +314,43 @@ export class Interview implements OnDestroy {
     return `${mins}:${secs}`;
   }
 
+  createInterview() {
+    const interviewInfo: IInterview = {
+      date: new Date().toISOString(),
+      timeTaken: this.elapsedTime,
+    };
+    this.interviewService.createInterview(interviewInfo).subscribe({
+      next: (response) => {
+        if (response) {
+          this.toaster.info(response.message);
+        }
+      },
+      error: (error) => {
+        this.toaster.error(error.message);
+      },
+    });
+  }
+
+  backWithoutFinishing() {
+    this.isListening = false;
+    this.isInterviewActive = false;
+    this.stopTimer();
+    this.stopRealtimeAudioCapture();
+    this.ws?.close();
+    this.ws = null;
+    this.questions = [];
+    this.jobDescription = '';
+    this.currentTranscription = '';
+    this.elapsedTime = 0;
+  }
+
   ngOnDestroy() {
-    this.endInterview();
+    this.backWithoutFinishing();
   }
 
   backToDashboard() {
     if (this.isInterviewActive && !confirm('Leave interview?')) return;
-    this.endInterview();
+    this.backWithoutFinishing();
     this.router.navigate(['dashboard']);
   }
 }
