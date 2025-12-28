@@ -1,0 +1,114 @@
+<div class="min-h-screen bg-gray-950 py-10 px-2">
+    <!-- Credits Section -->
+    <div class="max-w-6xl mx-auto text-center">
+        <h2 class="text-4xl font-bold text-white mb-4">Buy Credits</h2>
+        <p class="text-xl text-gray-400 mb-2">Pay as you go • Credits never expire</p>
+        <p class="text-cyan-400 text-lg font-medium">1 Credit = 1 Hour of Interview</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+            <!-- 1 Credit -->
+            <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/30 
+            hover:-translate-y-3 hover:shadow-2xl hover:shadow-cyan-400/20 
+            hover:border-cyan-400/40 transition-all duration-300">
+                <p class="text-4xl font-bold text-white mb-2">$19.99</p>
+                <p class="text-2xl text-gray-300 mb-8">1 Credit</p>
+
+                <ul class="space-y-4 text-gray-300 text-base mb-10">
+                    <li class="flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        1 full hour of interview
+                    </li>
+                    <li class="flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Never expires
+                    </li>
+                </ul>
+
+                <button (click)="buyCredits('one')" [disabled]="isLoading"
+                    class="w-full py-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50">
+                    {{ isLoading ? 'Processing...' : 'Buy 1 Credit' }}
+                </button>
+            </div>
+
+            <!-- 2 Credits (Popular) -->
+            <div class="relative bg-gray-800/40 backdrop-blur-sm rounded-2xl p-8 border-2 border-cyan-400/60 
+            ring-4 ring-cyan-400/20 hover:-translate-y-4 hover:shadow-2xl hover:shadow-cyan-400/50 
+            transition-all duration-300 transform scale-105">
+                <!-- Popular Badge -->
+                <div
+                    class="absolute -top-5 left-1/2 -translate-x-1/2 px-4 py-1 bg-cyan-500 text-white text-sm font-bold rounded-full">
+                    MOST POPULAR
+                </div>
+
+                <p class="text-4xl font-bold text-white mb-2 mt-4">$39.98</p>
+                <p class="text-2xl text-gray-300 mb-8">2 Credits</p>
+
+                <ul class="space-y-4 text-gray-300 text-base mb-10">
+                    <li class="flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        2 full hours of interview
+                    </li>
+                    <li class="flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Never expires
+                    </li>
+                </ul>
+
+                <button (click)="buyCredits('two')" [disabled]="isLoading" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 
+                 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50">
+                    {{ isLoading ? 'Processing...' : 'Buy 2 Credits' }}
+                </button>
+            </div>
+
+            <!-- 3 Credits -->
+            <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/30 
+            hover:-translate-y-3 hover:shadow-2xl hover:shadow-cyan-400/20 
+            hover:border-cyan-400/40 transition-all duration-300">
+                <p class="text-4xl font-bold text-white mb-2">$59.97</p>
+                <p class="text-2xl text-gray-300 mb-8">3 Credits</p>
+
+                <ul class="space-y-4 text-gray-300 text-base mb-10">
+                    <li class="flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        3 full hours of interview
+                    </li>
+                    <li class="flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Never expires
+                    </li>
+                </ul>
+
+                <button (click)="buyCredits('three')" [disabled]="isLoading"
+                    class="w-full py-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50">
+                    {{ isLoading ? 'Processing...' : 'Buy 3 Credits' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enterprise Contact -->
+    <div class="max-w-6xl mx-auto text-center mt-24">
+        <p class="text-lg text-gray-400">
+            For Enterprise Edition or bulk credit purchases,
+            <button (click)="contactAdmin()" class="text-cyan-400 hover:text-cyan-300 underline font-medium">
+                contact admin
+            </button>.
+        </p>
+    </div>
+
+    <p class="text-center text-sm text-gray-500 mt-16">
+        Secure payments powered by Stripe • Cards, PayPal, Apple Pay & more • 30-Day Money Back Guarantee
+    </p>
+</div>

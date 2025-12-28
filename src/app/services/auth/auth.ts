@@ -3,7 +3,28 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, Observable, throwError } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../../environments/environment';
 
+export interface IUser {
+  username: string;
+  email: string;
+  activationKey?: string;
+  accountActivated: boolean;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
+  tier: 'free' | '1hour' | '2hour' | '3hour';
+  totalAllocatedMinutes: number;
+  consumedMinutes: number;
+  remainingMinutes: number;
+  hasUsedFreeTier: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IGetUserResponse {
+  message: string;
+  user: IUser;
+}
 export interface ISignup {
   username: string;
   email: string;
@@ -25,38 +46,54 @@ export interface IJwtPayload {
   email: string;
 }
 
+export interface IUserLoginResponse {
+  message: string;
+  user: IUserInfo;
+  token: string;
+  remainingMinutes: number;
+  tier: string;
+  hasUsedFreeTier: boolean;
+}
+
+export interface IUserSignUpResponse {
+  message: string;
+  user: IUserInfo;
+}
+
+export interface IGetCreditsResponse {
+  remainingMinutes: number;
+  tier: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class Auth {
   constructor(private http: HttpClient, private router: Router) {}
 
-  apiUrl = 'http://69.169.111.89:5000';
+  apiUrl = environment.apiUrl;
 
-  signup(signupInfo: ISignup): Observable<{
-    message: string;
-    user: {
-      username: string;
-      email: string;
-    };
-  }> {
+  signup(signupInfo: ISignup): Observable<IUserSignUpResponse> {
     return this.http
-      .post<{ message: string; user: { username: string; email: string } }>(
-        `${this.apiUrl}/signup`,
-        signupInfo
-      )
+      .post<IUserSignUpResponse>(`${this.apiUrl}/signup`, signupInfo)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
-  login(
-    loginInfo: Ilogin
-  ): Observable<{ message: string; user: { username: string; email: string }; token: string }> {
+  login(loginInfo: Ilogin): Observable<IUserLoginResponse> {
     return this.http
-      .post<{
-        message: string;
-        user: { username: string; email: string };
-        token: string;
-      }>(`${this.apiUrl}/login`, loginInfo)
+      .post<IUserLoginResponse>(`${this.apiUrl}/login`, loginInfo)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getUser(): Observable<IGetUserResponse> {
+    return this.http
+      .get<IGetUserResponse>(`${this.apiUrl}/user`)
+      .pipe(catchError((error) => this.handleError(error)));
+  }
+
+  getUserCredits(): Observable<IGetCreditsResponse> {
+    return this.http
+      .get<IGetCreditsResponse>(`${this.apiUrl}/credits`)
       .pipe(catchError((error) => this.handleError(error)));
   }
 
@@ -86,20 +123,19 @@ export class Auth {
 
   public handleError(error: HttpErrorResponse) {
     if (error.status === 401) {
-      this.router.navigate(['auth', 'login']);
+      this.router.navigate(['login']);
     }
 
     let errorMsg = 'An unknown error occurred!';
 
     if (error.error) {
       if (error.error.message) {
-        errorMsg = error.error.message; // Primary message
+        errorMsg = error.error.message;
       }
       if (error.error.details) {
-        errorMsg += ` - ${error.error.details}`; // Additional details
+        errorMsg += ` - ${error.error.details}`;
       }
     }
-
     return throwError(() => new Error(errorMsg));
   }
 

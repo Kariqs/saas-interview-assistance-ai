@@ -9,7 +9,7 @@
                     🤫
                 </div>
                 <div>
-                    <h1 class="text-white font-bold text-sm">I GOTCH YOU</h1>
+                    <h1 class="text-white font-bold text-sm">KrackAI</h1>
                     <p class="text-cyan-400 text-xs">Ssh! I'm listening</p>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                 Start Interview
             </a>
 
-            <a href="#"
+            <a routerLink="/licence-management"
                 class="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -46,7 +46,7 @@
                 License Management
             </a>
 
-            <a href="#"
+            <a routerLink="/promo-codes"
                 class="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -55,7 +55,7 @@
                 Promo Codes
             </a>
 
-            <a href="#"
+            <a routerLink="/profile"
                 class="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -64,7 +64,17 @@
                 Profile
             </a>
 
-            <a href="#"
+            <a routerLink="/pricing"
+                class="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10l4 5-9 9-9-9V7z" />
+                    <circle cx="16" cy="8" r="1.5" />
+                </svg>
+                Pricing
+            </a>
+
+
+            <a routerLink="/support"
                 class="flex items-center gap-3 cursor-pointer px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -107,7 +117,7 @@
                         class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center text-xl">
                         🤫
                     </div>
-                    <h1 class="text-white font-bold text-sm">I GOTCH YOU</h1>
+                    <h1 class="text-white font-bold text-sm">KrackAI</h1>
                 </div>
                 <button class="text-gray-400 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,13 +141,17 @@
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <!-- License Status -->
+                @if (user) {
                 <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
                     <div class="flex items-start justify-between mb-4">
                         <h3 class="text-gray-400 text-sm font-medium">LICENSE STATUS</h3>
-                        <span class="px-3 py-1 bg-cyan-400 text-black text-xs font-bold rounded-full">Premium</span>
+                        <span
+                            class="px-3 py-1 bg-cyan-400 text-black text-xs uppercase font-bold rounded-full">{{user.tier}}
+                            tier</span>
                     </div>
-                    <p class="text-gray-500 text-sm">Valid until Dec 31, 2025</p>
+                    <p class="text-gray-500 text-sm">{{user.remainingMinutes}} Interview Minutes Remaining</p>
                 </div>
+                }
 
                 <!-- Interviews This Month -->
                 <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from "@angular/router";
 
 @Component({
   selector: 'app-header',
@@ -11,6 +12,10 @@ import { FormsModule } from '@angular/forms';
 export class HeaderComponent {
   protectionEnabled = true;
 
+  constructor(private router:Router) {
+    
+  }
+
   async onToggle() {
     if (window.electronAPI) {
       const state = await window.electronAPI.toggleProtection(this.protectionEnabled);
@@ -18,5 +23,9 @@ export class HeaderComponent {
     } else {
       console.warn('⚠️ Not running in Electron.');
     }
+  }
+
+  onLogoClick(){
+this.router.navigate(['dashboard'])
   }
 }
