@@ -6,7 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --configuration production",
     "electron:start": "cross-env NODE_ENV=development electron .",
     "electron:build": "npm run build && electron-builder"
   },
@@ -30,6 +30,7 @@
     "@angular/forms": "^20.2.0",
     "@angular/platform-browser": "^20.2.0",
     "@angular/router": "^20.2.0",
+    "@emailjs/browser": "^4.4.1",
     "@tailwindcss/postcss": "^4.1.14",
     "jwt-decode": "^4.0.0",
     "ngx-toastr": "^19.1.0",

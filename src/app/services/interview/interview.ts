@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable } from 'rxjs';
 import { Auth } from '../auth/auth';
+import { environment } from '../../../environments/environment';
 
 export interface IInterview {
   _id?: string;
@@ -31,7 +32,7 @@ export interface IDeleteInterviewResponse {
 })
 export class InterviewService {
   constructor(private http: HttpClient, private authService: Auth) {}
-  apiUrl = 'http://69.169.111.89:5000';
+  apiUrl = environment.apiUrl;
 
   createInterview(interviewInfo: IInterview): Observable<ICreateInterviewResponse> {
     return this.http

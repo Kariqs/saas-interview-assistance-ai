@@ -42,9 +42,17 @@ export class Login {
         next: (response) => {
           if (response) {
             localStorage.setItem('token', response.token);
-            this.router.navigate(['dashboard']).then(() => {
-              this.toaster.info(response.message);
-            });
+            if (response.remainingMinutes > 0) {
+              this.router.navigate(['dashboard']).then(() => {
+                this.toaster.info(response.message);
+              });
+            } else {
+              this.router.navigate(['access']).then(() => {
+                this.toaster.warning(
+                  'You are out of interview credits. Purchase credits to continue'
+                );
+              });
+            }
           }
         },
         error: (error) => {

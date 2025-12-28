@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { jwtDecode } from 'jwt-decode';
-import { Auth } from '../../services/auth/auth';
-import { IInterview, InterviewService } from '../../services/interview/interview';
+import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { Auth, IUser } from '../../services/auth/auth';
+import { IInterview, InterviewService } from '../../services/interview/interview';
 
 interface InterviewSession {
   date: string;
@@ -14,7 +13,7 @@ interface InterviewSession {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -24,10 +23,12 @@ export class Dashboard implements OnInit {
   abbrev!: string;
   recentSessions: IInterview[] = [];
   monthlySessionsCount!: number;
+  user!: IUser;
 
   ngOnInit(): void {
     this.getUser();
     this.getInterviews();
+    this.getUserInfo();
   }
 
   constructor(
@@ -52,6 +53,19 @@ export class Dashboard implements OnInit {
 
   startInterview() {
     this.router.navigate(['interview']);
+  }
+
+  getUserInfo() {
+    this.authService.getUser().subscribe({
+      next: (response) => {
+        if (response) {
+          this.user = response.user;
+        }
+      },
+      error: (error) => {
+        this.toaster.error(error.message);
+      },
+    });
   }
 
   getInterviews() {
