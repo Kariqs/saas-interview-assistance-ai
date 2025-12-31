@@ -28,9 +28,9 @@
                     </li>
                 </ul>
 
-                <button (click)="buyCredits('one')" [disabled]="isLoading"
+                <button (click)="buy('sixty')" [disabled]="loading.sixty"
                     class="w-full py-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50">
-                    {{ isLoading ? 'Processing...' : 'Buy 1 Credit' }}
+                    {{ loading.sixty ? 'Processing...' : 'Buy 1 Credit' }}
                 </button>
             </div>
 
@@ -62,9 +62,9 @@
                     </li>
                 </ul>
 
-                <button (click)="buyCredits('two')" [disabled]="isLoading" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 
-                 text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50">
-                    {{ isLoading ? 'Processing...' : 'Buy 2 Credits' }}
+                <button (click)="buy('oneTwenty')" [disabled]="loading.oneTwenty" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 
+                     text-white font-semibold rounded-xl shadow-lg transition-all disabled:opacity-50">
+                    {{ loading.oneTwenty ? 'Processing...' : 'Buy 2 Credits' }}
                 </button>
             </div>
 
@@ -90,9 +90,9 @@
                     </li>
                 </ul>
 
-                <button (click)="buyCredits('three')" [disabled]="isLoading"
+                <button (click)="buy('oneEighty')" [disabled]="loading.oneEighty"
                     class="w-full py-4 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50">
-                    {{ isLoading ? 'Processing...' : 'Buy 3 Credits' }}
+                    {{ loading.oneEighty ? 'Processing...' : 'Buy 3 Credits' }}
                 </button>
             </div>
         </div>
