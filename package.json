@@ -1,5 +1,5 @@
 {
-  "name": "saas-interview-assistant-tool",
+  "name": "krackai",
   "version": "1.0.0",
   "main": "electron/main.js",
   "private": true,
@@ -62,8 +62,8 @@
     "wait-on": "^8.0.1"
   },
   "build": {
-    "appId": "com.saas.interviewassistant",
-    "productName": "SaaS Interview Assistant Tool",
+    "appId": "com.krackai.app",
+    "productName": "KrackAI",
     "directories": {
       "output": "release"
     },
